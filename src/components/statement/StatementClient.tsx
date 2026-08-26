@@ -65,6 +65,7 @@ const TRANSACTION_TYPES = [
   { value: "INITIAL_BALANCE", label: "Saldo inicial" },
   { value: "BET", label: "Apostas" },
   { value: "BET_WIN", label: "Ganhos em apostas" },
+  { value: "CREATOR_FEE", label: "Taxa de criador" },
   { value: "TRANSFER_IN", label: "Transferências recebidas" },
   { value: "TRANSFER_OUT", label: "Transferências enviadas" },
 ];
@@ -91,6 +92,13 @@ function getTransactionInfo(type: string) {
         label: "Ganho em aposta",
         color: "text-green-600",
         bgColor: "bg-green-500/10",
+      };
+    case "CREATOR_FEE":
+      return {
+        icon: Coins, // ou pode importar Sparkles do lucide
+        label: "Taxa de criador",
+        color: "text-primary",
+        bgColor: "bg-primary/10",
       };
     case "TRANSFER_IN":
       return {

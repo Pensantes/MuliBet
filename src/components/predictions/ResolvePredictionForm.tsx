@@ -262,11 +262,11 @@ export function ResolvePredictionForm({
                   <p className="text-xs text-muted-foreground">Pool total</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-orange-600">
+                  <div className="text-xl font-bold text-primary">
                     {Math.floor(totalPool * 0.05).toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Taxa da casa (5%)
+                    Você recebe (5%)
                   </p>
                 </div>
                 <div className="text-center">
@@ -293,18 +293,24 @@ export function ResolvePredictionForm({
 
               {winnersPool === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nenhuma das opções marcadas recebeu apostas. A taxa de 5% será
-                  retida e os outros 95% serão devolvidos proporcionalmente para
-                  todos os apostadores.
+                  Nenhuma das opções marcadas recebeu apostas. Você receberá{" "}
+                  <span className="font-medium text-foreground">
+                    {Math.floor(totalPool * 0.05).toLocaleString()} Muli
+                  </span>{" "}
+                  de taxa, e os outros 95% serão devolvidos proporcionalmente
+                  para todos os apostadores.
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  A taxa de 5% será retida. Os outros{" "}
+                  Você receberá{" "}
+                  <span className="font-medium text-foreground">
+                    {Math.floor(totalPool * 0.05).toLocaleString()} Muli
+                  </span>{" "}
+                  de taxa. Os outros{" "}
                   <span className="font-medium text-foreground">
                     {Math.floor(totalPool * 0.95).toLocaleString()} Muli
                   </span>{" "}
-                  serão divididos proporcionalmente entre os vencedores, baseado
-                  no quanto cada um apostou.
+                  serão divididos proporcionalmente entre os vencedores.
                 </p>
               )}
             </CardContent>
