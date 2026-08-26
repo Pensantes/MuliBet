@@ -23,7 +23,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 interface Profile {
@@ -54,6 +53,7 @@ interface PredictionsListProps {
   predictions: Prediction[];
   userBets: UserBet[];
   currentUserId: string | null;
+  userBalance: number;
 }
 
 interface Prediction {
@@ -61,12 +61,13 @@ interface Prediction {
   title: string;
   description: string | null;
   status: "OPEN" | "CLOSED" | "RESOLVED";
-  created_at: string; // <-- ADICIONADO
+  created_at: string;
   closes_at: string;
   resolved_at: string | null;
   creator_id: string;
   creator: Profile;
   prediction_options: PredictionOption[];
+  prediction_winning_options: { option_id: string }[]; // <-- ADICIONADO AQUI
   bets: Bet[];
 }
 
@@ -77,9 +78,10 @@ export function PredictionsList({
   predictions,
   userBets,
   currentUserId,
+  userBalance,
 }: PredictionsListProps) {
   const [filter, setFilter] = useState<FilterStatus>("OPEN");
-  const [sortBy, setSortBy] = useState<SortOption>("newest"); // <-- NOVO ESTADO
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
 
   const sortLabels: Record<SortOption, string> = {
     newest: "Mais recentes",
@@ -186,7 +188,7 @@ export function PredictionsList({
           value={sortBy}
           onValueChange={(v) => setSortBy(v as SortOption)}
         >
-          <SelectTrigger className="w-full sm:w-55">
+          <SelectTrigger className="w-full sm:w-[220px]">
             <ArrowUpDown className="mr-2 h-4 w-4 text-muted-foreground" />
             <span>{sortLabels[sortBy]}</span>
           </SelectTrigger>
@@ -221,7 +223,6 @@ export function PredictionsList({
 
       {/* Lista */}
       {sortedPredictions.length === 0 ? (
-        // ... (mantenha o seu Empty State exatamente como estava)
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <Target className="h-6 w-6 text-muted-foreground" />
@@ -243,6 +244,7 @@ export function PredictionsList({
               prediction={prediction}
               userBet={userBets.find((b) => b.prediction_id === prediction.id)}
               currentUserId={currentUserId}
+              userBalance={userBalance}
             />
           ))}
         </div>

@@ -9,7 +9,6 @@ export const metadata = {
 
 export const dynamic = "force-dynamic";
 
-// 1. Define o tipo exato do que o Supabase retorna antes da normalização
 interface RawPredictionRow {
   id: string;
   title: string;
@@ -32,6 +31,7 @@ interface RawPredictionRow {
       }
     | null;
   prediction_options: { id: string; label: string }[] | null;
+  prediction_winning_options: { option_id: string }[] | null; // <-- ADICIONADO
   bets:
     | { id: string; user_id: string; option_id: string; amount: number }[]
     | null;
@@ -60,6 +60,7 @@ export default async function PredictionsPage() {
       creator_id,
       creator:profiles!predictions_creator_id_fkey(username, display_name, avatar_url),
       prediction_options!prediction_options_prediction_id_fkey(id, label),
+      prediction_winning_options(option_id),
       bets(id, user_id, option_id, amount)
     `);
 
@@ -67,7 +68,6 @@ export default async function PredictionsPage() {
     console.error("Erro ao buscar previsões:", error);
   }
 
-  // 2. Normaliza os dados com tipagem segura (sem 'any' e sem spread '...')
   const predictions = ((predictionsRaw || []) as RawPredictionRow[]).map(
     (p) => {
       const safeCreator = Array.isArray(p.creator)
@@ -93,20 +93,26 @@ export default async function PredictionsPage() {
         creator_id: p.creator_id,
         creator: safeCreator,
         prediction_options: p.prediction_options ?? [],
+        prediction_winning_options: p.prediction_winning_options ?? [], // <-- ADICIONADO
         bets: p.bets ?? [],
       };
     },
   );
 
-  // 3. Busca apostas do usuário atual
   let userBets: { prediction_id: string; option_id: string; amount: number }[] =
     [];
+  let userBalance = 0;
+
   if (user) {
     const { data } = await supabase
       .from("bets")
       .select("prediction_id, option_id, amount")
       .eq("user_id", user.id);
     userBets = data || [];
+
+    // BUSCA O SALDO DO USUÁRIO
+    const { data: balanceData } = await supabase.rpc("get_balance");
+    userBalance = balanceData || 0;
   }
 
   return (
@@ -114,6 +120,7 @@ export default async function PredictionsPage() {
       predictions={predictions}
       userBets={userBets}
       currentUserId={user?.id || null}
+      userBalance={userBalance}
     />
   );
 }

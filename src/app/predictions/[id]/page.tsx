@@ -73,7 +73,7 @@ export default async function PredictionPage({
     notFound();
   }
 
-  console.log(predictionRaw);
+  // console.log(predictionRaw);
 
   // 4. Normaliza os dados (Supabase retorna relações como array)
   const prediction = {
