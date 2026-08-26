@@ -49,6 +49,8 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
   const navLinks = [
     { href: "/predictions", label: "Previsões" },
     { href: "/ranking", label: "Ranking" },
+    { href: "/transfer", label: "Transferências" },
+    { href: "/statement", label: "Extrato" },
   ];
 
   const isActive = (href: string) => pathname === href;
@@ -60,8 +62,10 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
     router.refresh();
   }
 
+  const newLocal =
+    "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60";
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className={newLocal}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
