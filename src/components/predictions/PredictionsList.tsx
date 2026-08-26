@@ -4,11 +4,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Target, CheckCircle2, Clock, XCircle } from "lucide-react";
+import {
+  Plus,
+  Target,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  ArrowUpDown,
+  Coins,
+  Users,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PredictionCard } from "./PredictionCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Profile {
   username: string;
@@ -28,19 +44,6 @@ interface Bet {
   amount: number;
 }
 
-export interface Prediction {
-  id: string;
-  title: string;
-  description: string | null;
-  status: "OPEN" | "CLOSED" | "RESOLVED";
-  closes_at: string;
-  resolved_at: string | null;
-  creator_id: string;
-  creator: Profile;
-  prediction_options: PredictionOption[];
-  bets: Bet[];
-}
-
 interface UserBet {
   prediction_id: string;
   option_id: string;
@@ -53,7 +56,22 @@ interface PredictionsListProps {
   currentUserId: string | null;
 }
 
+interface Prediction {
+  id: string;
+  title: string;
+  description: string | null;
+  status: "OPEN" | "CLOSED" | "RESOLVED";
+  created_at: string; // <-- ADICIONADO
+  closes_at: string;
+  resolved_at: string | null;
+  creator_id: string;
+  creator: Profile;
+  prediction_options: PredictionOption[];
+  bets: Bet[];
+}
+
 type FilterStatus = "ALL" | "OPEN" | "CLOSED" | "RESOLVED";
+type SortOption = "newest" | "closing_soon" | "most_muli" | "most_bets";
 
 export function PredictionsList({
   predictions,
@@ -61,10 +79,44 @@ export function PredictionsList({
   currentUserId,
 }: PredictionsListProps) {
   const [filter, setFilter] = useState<FilterStatus>("OPEN");
+  const [sortBy, setSortBy] = useState<SortOption>("newest"); // <-- NOVO ESTADO
 
+  const sortLabels: Record<SortOption, string> = {
+    newest: "Mais recentes",
+    closing_soon: "Encerrando em breve",
+    most_muli: "Mais Muli acumulados",
+    most_bets: "Mais apostadores",
+  };
+
+  // 1. Filtra por status
   const filteredPredictions = predictions.filter((p) => {
     if (filter === "ALL") return true;
     return p.status === filter;
+  });
+
+  // 2. Ordena o array filtrado
+  const sortedPredictions = [...filteredPredictions].sort((a, b) => {
+    const totalMuliA = a.bets.reduce((sum, bet) => sum + bet.amount, 0);
+    const totalMuliB = b.bets.reduce((sum, bet) => sum + bet.amount, 0);
+    const betsCountA = a.bets.length;
+    const betsCountB = b.bets.length;
+
+    switch (sortBy) {
+      case "newest":
+        return (
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      case "closing_soon":
+        return (
+          new Date(a.closes_at).getTime() - new Date(b.closes_at).getTime()
+        );
+      case "most_muli":
+        return totalMuliB - totalMuliA;
+      case "most_bets":
+        return betsCountB - betsCountA;
+      default:
+        return 0;
+    }
   });
 
   const counts = {
@@ -101,34 +153,75 @@ export function PredictionsList({
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="mb-6 flex gap-2 overflow-x-auto pb-2">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = filter === tab.value;
-          return (
-            <Button
-              key={tab.value}
-              variant={isActive ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilter(tab.value)}
-              className="gap-2"
-            >
-              <Icon className="h-4 w-4" />
-              {tab.label}
-              <Badge
-                variant={isActive ? "secondary" : "outline"}
-                className="ml-1 h-5 min-w-5 px-1.5"
+      {/* Controles: Tabs + Ordenação */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Tabs */}
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = filter === tab.value;
+            return (
+              <Button
+                key={tab.value}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter(tab.value)}
+                className="gap-2 whitespace-nowrap"
               >
-                {counts[tab.value]}
-              </Badge>
-            </Button>
-          );
-        })}
+                <Icon className="h-4 w-4" />
+                {tab.label}
+                <Badge
+                  variant={isActive ? "secondary" : "outline"}
+                  className="ml-1 h-5 min-w-5 px-1.5"
+                >
+                  {counts[tab.value]}
+                </Badge>
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Dropdown de Ordenação */}
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as SortOption)}
+        >
+          <SelectTrigger className="w-full sm:w-55">
+            <ArrowUpDown className="mr-2 h-4 w-4 text-muted-foreground" />
+            <span>{sortLabels[sortBy]}</span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>Mais recentes</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="closing_soon">
+              <div className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                <span>Encerrando em breve</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="most_muli">
+              <div className="flex items-center gap-2">
+                <Coins className="h-4 w-4" />
+                <span>Mais Muli acumulados</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="most_bets">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>Mais apostadores</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Lista */}
-      {filteredPredictions.length === 0 ? (
+      {sortedPredictions.length === 0 ? (
+        // ... (mantenha o seu Empty State exatamente como estava)
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
             <Target className="h-6 w-6 text-muted-foreground" />
@@ -141,18 +234,10 @@ export function PredictionsList({
                 ? "Ainda não há previsões. Seja o primeiro a criar!"
                 : `Não há previsões ${filter === "CLOSED" ? "encerradas" : "resolvidas"}.`}
           </p>
-          {currentUserId && filter === "ALL" && (
-            <Link href="/predictions/new" className="mt-4">
-              <Button variant="outline">
-                <Plus className="mr-2 h-4 w-4" />
-                Criar primeira previsão
-              </Button>
-            </Link>
-          )}
         </div>
       ) : (
-        <div className="space-y-4 gap-4 flex flex-col">
-          {filteredPredictions.map((prediction) => (
+        <div className="space-y-4">
+          {sortedPredictions.map((prediction) => (
             <PredictionCard
               key={prediction.id}
               prediction={prediction}
