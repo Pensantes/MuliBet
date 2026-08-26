@@ -99,7 +99,7 @@ export function ResolvePredictionForm({
   const winnersPool = optionsStats
     .filter((s) => s.isSelected)
     .reduce((sum, s) => sum + s.amount, 0);
-  const losersPool = totalPool - winnersPool;
+  // const losersPool = totalPool - winnersPool;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -253,7 +253,7 @@ export function ResolvePredictionForm({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-3 gap-4 rounded-lg bg-muted/50 p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-lg bg-muted/50 p-4">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 text-xl font-bold">
                     <Coins className="h-4 w-4 text-primary" />
@@ -262,42 +262,49 @@ export function ResolvePredictionForm({
                   <p className="text-xs text-muted-foreground">Pool total</p>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-green-600">
-                    {winnersPool.toLocaleString()}
+                  <div className="text-xl font-bold text-orange-600">
+                    {Math.floor(totalPool * 0.05).toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Pool dos vencedores
+                    Taxa da casa (5%)
                   </p>
                 </div>
                 <div className="text-center">
-                  <div className="text-xl font-bold text-destructive">
-                    {losersPool.toLocaleString()}
+                  <div className="text-xl font-bold text-green-600">
+                    {Math.floor(totalPool * 0.95).toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Pool dos perdedores
+                    Pool disponível
+                  </p>
+                </div>
+                <div className="text-center">
+                  <div className="text-xl font-bold">
+                    {winnersPool > 0
+                      ? winnersPool.toLocaleString()
+                      : totalPool.toLocaleString()}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {winnersPool > 0
+                      ? "Pool dos vencedores"
+                      : "Pool total (devolução)"}
                   </p>
                 </div>
               </div>
 
-              {losersPool === 0 ? (
+              {winnersPool === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Como todas as opções com apostas foram marcadas como
-                  vencedoras, cada apostador receberá exatamente o que apostou
-                  de volta.
-                </p>
-              ) : winnersPool === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Nenhuma das opções marcadas recebeu apostas. Ninguém receberá
-                  recompensa — o pool ficará sem distribuição.
+                  Nenhuma das opções marcadas recebeu apostas. A taxa de 5% será
+                  retida e os outros 95% serão devolvidos proporcionalmente para
+                  todos os apostadores.
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Os{" "}
+                  A taxa de 5% será retida. Os outros{" "}
                   <span className="font-medium text-foreground">
-                    {losersPool.toLocaleString()} Muli
+                    {Math.floor(totalPool * 0.95).toLocaleString()} Muli
                   </span>{" "}
-                  dos perdedores serão divididos proporcionalmente entre os
-                  vencedores, baseado no quanto cada um apostou.
+                  serão divididos proporcionalmente entre os vencedores, baseado
+                  no quanto cada um apostou.
                 </p>
               )}
             </CardContent>
