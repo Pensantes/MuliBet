@@ -33,6 +33,7 @@ interface PredictionOption {
   label: string;
 }
 
+// Simplificado: não precisamos mais de user_profile ou created_at aqui
 interface Bet {
   id: string;
   user_id: string;
@@ -50,7 +51,7 @@ interface Prediction {
   creator_id: string;
   creator: Profile;
   prediction_options: PredictionOption[];
-  prediction_winning_options: { option_id: string }[]; // <-- ADICIONADO
+  prediction_winning_options: { option_id: string }[];
   bets: Bet[];
 }
 
@@ -133,7 +134,7 @@ export function PredictionDetail({
     closes_at,
     creator,
     prediction_options,
-    prediction_winning_options, // <-- ADICIONADO
+    prediction_winning_options,
     bets,
   } = prediction;
 
@@ -146,18 +147,19 @@ export function PredictionDetail({
     (prediction_winning_options || []).map((w) => w.option_id),
   );
 
-  // 2. ESTATÍSTICAS POR OPÇÃO (USANDO O SET)
+  // 2. ESTATÍSTICAS POR OPÇÃO (AGREGADAS)
   const optionsStats = prediction_options.map((opt, index) => {
     const optionBets = bets.filter((b) => b.option_id === opt.id);
     const amount = optionBets.reduce((sum, b) => sum + b.amount, 0);
+    const count = optionBets.length;
     const percentage = totalAmount > 0 ? (amount / totalAmount) * 100 : 0;
 
-    const isWinner = winningOptionIds.has(opt.id); // <-- AQUI USA O SET
+    const isWinner = winningOptionIds.has(opt.id);
     const isUserChoice = userBet?.option_id === opt.id;
 
     return {
       option: opt,
-      count: optionBets.length,
+      count,
       amount,
       percentage,
       isWinner,
@@ -232,10 +234,10 @@ export function PredictionDetail({
         )}
       </Card>
 
-      {/* Opções */}
+      {/* Opções com Totais Agregados */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="text-lg">Opções</CardTitle>
+          <CardTitle className="text-lg">Opções e Apostas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {optionsStats.map(
@@ -250,14 +252,15 @@ export function PredictionDetail({
             }) => (
               <div
                 key={option.id}
-                className={`relative overflow-hidden rounded-lg border p-4 ${
+                className={`relative overflow-hidden rounded-lg border p-4 transition-colors ${
                   isWinner
                     ? "border-green-500 bg-green-50 dark:bg-green-950/20"
                     : isUserChoice
                       ? "border-primary bg-primary/5"
-                      : ""
+                      : "hover:border-primary/30"
                 }`}
               >
+                {/* Barra de progresso de porcentagem */}
                 {totalAmount > 0 && (
                   <div
                     className={`absolute inset-y-0 left-0 ${
@@ -265,7 +268,7 @@ export function PredictionDetail({
                         ? "bg-green-500/10"
                         : isUserChoice
                           ? "bg-primary/10"
-                          : "bg-muted"
+                          : "bg-muted/50"
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -299,17 +302,23 @@ export function PredictionDetail({
                     )}
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      <span>{count}</span>
+                  {/* TOTAIS AGREGADOS (Sem mostrar quem) */}
+                  <div className="flex items-center gap-5 text-sm">
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-center gap-1.5 font-semibold text-primary">
+                        <Coins className="h-4 w-4" />
+                        <span>{amount.toLocaleString()} Muli</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Users className="h-3 w-3" />
+                        <span>
+                          {count} {count === 1 ? "aposta" : "apostas"}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 font-medium">
-                      <Coins className="h-4 w-4 text-primary" />
-                      <span>{amount.toLocaleString()}</span>
-                    </div>
+
                     {totalAmount > 0 && (
-                      <div className="w-14 text-right text-xs text-muted-foreground">
+                      <div className="w-14 text-right text-xs font-medium text-muted-foreground">
                         {percentage.toFixed(1)}%
                       </div>
                     )}
@@ -331,7 +340,7 @@ export function PredictionDetail({
                 <Coins className="h-5 w-5 text-primary" />
                 {totalAmount.toLocaleString()}
               </div>
-              <p className="text-xs text-muted-foreground">Total apostado</p>
+              <p className="text-xs text-muted-foreground">Total no pool</p>
             </div>
             <div className="h-10 w-px bg-border" />
             <div className="text-center">
@@ -417,7 +426,7 @@ export function PredictionDetail({
         {status === "RESOLVED" && userBet && (
           <Card
             className={
-              userBet.option_id === Array.from(winningOptionIds)[0] // Simplificação: se a aposta do user estiver no set de vencedores
+              winningOptionIds.has(userBet.option_id)
                 ? "border-green-500 bg-green-50 dark:bg-green-950/20"
                 : "border-destructive/50"
             }
