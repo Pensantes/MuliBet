@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PredictionsList } from "@/components/predictions/PredictionsList";
 
 export const metadata = {
-  title: "Previsões — MuliBet",
+  title: "Previsões — MuliMarket",
 };
 
 export const dynamic = "force-dynamic"; // Garante que roda sempre, sem cache

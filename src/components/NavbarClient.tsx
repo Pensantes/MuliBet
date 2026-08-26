@@ -71,7 +71,7 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Coins className="h-6 w-6 text-primary" />
-            <span className="text-xl font-bold">MuliBet</span>
+            <span className="text-xl font-bold">MuliMarket</span>
           </Link>
 
           {/* Desktop Navigation */}

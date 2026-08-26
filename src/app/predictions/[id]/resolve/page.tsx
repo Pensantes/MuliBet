@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ResolvePredictionForm } from "@/components/predictions/ResolvePredictionForm";
 
 export const metadata = {
-  title: "Resolver previsão — MuliBet",
+  title: "Resolver previsão — MuliMarket",
 };
 
 export default async function ResolvePredictionPage({

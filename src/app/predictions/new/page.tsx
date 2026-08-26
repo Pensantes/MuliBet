@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { CreatePredictionForm } from "@/components/predictions/CreatePredictionForm";
 
 export const metadata = {
-  title: "Criar previsão — MuliBet",
+  title: "Criar previsão — MuliMarket",
 };
 
 export default async function NewPredictionPage() {

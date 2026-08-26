@@ -72,7 +72,7 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
           <Trophy className="h-7 w-7 text-primary" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Ranking MuliBet
+          Ranking MuliMarket
         </h1>
         <p className="mt-2 text-muted-foreground">
           Os melhores previsores da comunidade, ordenados por saldo.

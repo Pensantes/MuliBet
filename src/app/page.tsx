@@ -83,7 +83,7 @@ export default async function Home() {
                   <span className="text-primary">acontecer</span>
                 </h1>
                 <p className="mt-6 text-lg text-muted-foreground">
-                  MuliBet é a plataforma de previsões da comunidade. Crie
+                  MuliMarket é a plataforma de previsões da comunidade. Crie
                   apostas sobre qualquer coisa, desafie seus amigos e suba no
                   ranking — tudo com Muli, nossa moeda virtual.
                 </p>

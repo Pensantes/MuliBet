@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TransferForm } from "@/components/transfer/TransferForm";
 
 export const metadata = {
-  title: "Transferir Muli — MuliBet",
+  title: "Transferir Muli — MuliMarket",
 };
 
 export default async function TransferPage() {

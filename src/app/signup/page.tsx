@@ -107,7 +107,7 @@ export default function SignupPage() {
         <div className="mb-8 flex flex-col items-center gap-2">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
             <Coins className="h-7 w-7 text-primary" />
-            <span>MuliBet</span>
+            <span>MuliMarket</span>
           </Link>
           <p className="text-sm text-muted-foreground">
             Crie sua conta e ganhe 1.000 Muli grátis

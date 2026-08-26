@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { StatementClient } from "@/components/statement/StatementClient";
 
 export const metadata = {
-  title: "Extrato — MuliBet",
+  title: "Extrato — MuliMarket",
 };
 
 export default async function StatementPage({

@@ -64,7 +64,7 @@ export default function LoginPage() {
         <div className="mb-8 flex flex-col items-center gap-2">
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
             <Coins className="h-7 w-7 text-primary" />
-            <span>MuliBet</span>
+            <span>MuliMarket</span>
           </Link>
           <p className="text-sm text-muted-foreground">
             Entre na sua conta para continuar
@@ -75,7 +75,7 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle>Entrar</CardTitle>
             <CardDescription>
-              Use seu username e senha para acessar o MuliBet.
+              Use seu username e senha para acessar o MuliMarket.
             </CardDescription>
           </CardHeader>
 

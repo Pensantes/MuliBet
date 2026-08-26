@@ -380,7 +380,7 @@ export function StatementClient({
             <p className="mt-1 text-sm text-muted-foreground">
               {hasFilters
                 ? "Tente ajustar os filtros para ver outras transações."
-                : "Suas transações aparecerão aqui assim que você começar a usar o MuliBet."}
+                : "Suas transações aparecerão aqui assim que você começar a usar o MuliMarket."}
             </p>
             {hasFilters && (
               <Button variant="outline" className="mt-4" onClick={clearFilters}>

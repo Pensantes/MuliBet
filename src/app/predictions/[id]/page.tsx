@@ -19,7 +19,9 @@ export async function generateMetadata({
     .single();
 
   return {
-    title: prediction ? `${prediction.title} — MuliBet` : "Previsão — MuliBet",
+    title: prediction
+      ? `${prediction.title} — MuliMarket`
+      : "Previsão — MuliMarket",
   };
 }
 

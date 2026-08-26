@@ -8,7 +8,7 @@ import { Navbar } from "@/components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MuliBet - Previsões da Comunidade",
+  title: "MuliMarket - Previsões da Comunidade",
   description: "Plataforma de previsões para a comunidade universitária",
 };
 

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 
 export const metadata = {
-  title: "Meu Perfil — MuliBet",
+  title: "Meu Perfil — MuliMarket",
 };
 
 export default async function ProfilePage() {
