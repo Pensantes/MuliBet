@@ -2,6 +2,7 @@
 
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Trophy,
   Medal,
@@ -9,6 +10,10 @@ import {
   Coins,
   TrendingUp,
   User as UserIcon,
+  Wallet,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Calendar,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,20 +25,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface LeaderboardEntry {
   id: string;
   username: string;
   display_name: string | null;
   avatar_url: string | null;
-  balance: number;
+  metric_value: number;
   rank_position: number;
 }
 
 interface RankingListProps {
   leaderboard: LeaderboardEntry[];
   currentUserId: string | null;
+  initialType: string;
+  initialPeriod: string;
 }
+
+type RankingType = "balance" | "net_worth" | "gains" | "losses";
+type RankingPeriod = "day" | "week" | "month" | "total";
+
+// Mapeamento para exibir o nome bonito no SelectValue
+const periodLabels: Record<RankingPeriod, string> = {
+  day: "Últimas 24 horas",
+  week: "Últimos 7 dias",
+  month: "Últimos 30 dias",
+  total: "Todo o período",
+};
 
 function getRankIcon(position: number) {
   if (position === 1) return <Crown className="h-5 w-5 text-yellow-500" />;
@@ -52,17 +78,75 @@ function getRankBadgeColor(position: number): string {
   return "bg-muted text-muted-foreground";
 }
 
-export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
+function getTypeConfig(type: RankingType) {
+  switch (type) {
+    case "balance":
+      return {
+        title: "Saldo em Conta",
+        description: "Os maiores saldos disponíveis no momento.",
+        userLabel: "Seu saldo",
+        icon: Wallet,
+        color: "text-primary",
+      };
+    case "net_worth":
+      return {
+        title: "Patrimônio Total",
+        description:
+          "Saldo em conta + dinheiro preso em apostas não resolvidas.",
+        userLabel: "Seu patrimônio",
+        icon: Coins,
+        color: "text-primary",
+      };
+    case "gains":
+      return {
+        title: "Maiores Ganhos",
+        description: "Usuários com maior lucro líquido no período.",
+        userLabel: "Seus ganhos",
+        icon: ArrowUpCircle,
+        color: "text-green-600",
+      };
+    case "losses":
+      return {
+        title: "Maiores Prejuízos",
+        description: "Usuários com maior perda líquida no período.",
+        userLabel: "Seu prejuízo",
+        icon: ArrowDownCircle,
+        color: "text-destructive",
+      };
+  }
+}
+
+export function RankingList({
+  leaderboard,
+  currentUserId,
+  initialType,
+  initialPeriod,
+}: RankingListProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const top3 = leaderboard.slice(0, 3);
   const rest = leaderboard.slice(3);
-
-  // Posição do usuário atual
   const currentUserEntry = currentUserId
     ? leaderboard.find((e) => e.id === currentUserId)
     : null;
-
-  // Ordena o pódio visualmente: 2º, 1º, 3º (padrão de pódio)
   const podiumOrder = [top3[1], top3[0], top3[2]].filter(Boolean);
+
+  const config = getTypeConfig(initialType as RankingType);
+  const Icon = config.icon;
+
+  function updateFilter(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(key, value);
+
+    if (key === "type" && value !== "gains" && value !== "losses") {
+      params.delete("period");
+    }
+
+    router.push(`/ranking?${params.toString()}`);
+  }
+
+  const showPeriodFilter = initialType === "gains" || initialType === "losses";
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-10">
@@ -72,14 +156,89 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
           <Trophy className="h-7 w-7 text-primary" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Ranking MuliMarket
+          Ranking MuliBet
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Os melhores previsores da comunidade, ordenados por saldo.
+          Acompanhe o desempenho dos melhores da comunidade.
         </p>
       </div>
 
-      {/* Card do usuário atual (se logado) */}
+      {/* Filtros com TABS e Dropdown melhorados */}
+      <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="w-full">
+          <span className="mb-2 block text-sm font-medium text-muted-foreground">
+            Tipo de Ranking
+          </span>
+          <Tabs
+            value={initialType}
+            onValueChange={(v) => updateFilter("type", v)}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-10 p-1">
+              <TabsTrigger
+                value="balance"
+                className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Wallet className="mr-2 h-4 w-4" />
+                Saldo
+              </TabsTrigger>
+              <TabsTrigger
+                value="net_worth"
+                className="text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Coins className="mr-2 h-4 w-4" />
+                Patrimônio
+              </TabsTrigger>
+              <TabsTrigger
+                value="gains"
+                className="text-xs sm:text-sm data-[state=active]:bg-green-600 data-[state=active]:text-white"
+              >
+                <ArrowUpCircle className="mr-2 h-4 w-4" />
+                Ganhos
+              </TabsTrigger>
+              <TabsTrigger
+                value="losses"
+                className="text-xs sm:text-sm data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground"
+              >
+                <ArrowDownCircle className="mr-2 h-4 w-4" />
+                Prejuízos
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {showPeriodFilter && (
+          <div className="w-full sm:w-56 space-y-2 -mb-2">
+            <span className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              Período
+            </span>
+            <Select
+              value={initialPeriod || "total"}
+              onValueChange={(v) => updateFilter("period", v || "")}
+            >
+              <SelectTrigger className="w-full">
+                {/* Mapeamento manual do value para texto */}
+                <span>
+                  {initialPeriod === "day" && "Últimas 24 horas"}
+                  {initialPeriod === "week" && "Últimos 7 dias"}
+                  {initialPeriod === "month" && "Últimos 30 dias"}
+                  {(!initialPeriod || initialPeriod === "total") &&
+                    "Todo o período"}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="day">Últimas 24 horas</SelectItem>
+                <SelectItem value="week">Últimos 7 dias</SelectItem>
+                <SelectItem value="month">Últimos 30 dias</SelectItem>
+                <SelectItem value="total">Todo o período</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+
+      {/* Card do usuário atual */}
       {currentUserEntry && (
         <Card className="mb-6 border-primary/30 bg-primary/5">
           <CardContent className="flex items-center justify-between py-4">
@@ -106,11 +265,15 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
               </div>
             </div>
             <div className="text-right">
-              <div className="flex items-center gap-1 font-bold text-primary">
-                <Coins className="h-4 w-4" />
-                {currentUserEntry.balance.toLocaleString()} Muli
+              <div
+                className={`flex items-center justify-end gap-1 font-bold ${config.color}`}
+              >
+                <Icon className="h-4 w-4" />
+                {currentUserEntry.metric_value.toLocaleString()} Muli
               </div>
-              <p className="text-xs text-muted-foreground">Seu saldo</p>
+              <p className="text-xs text-muted-foreground">
+                {config.userLabel}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -124,7 +287,7 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
               <Trophy className="h-5 w-5 text-yellow-500" />
               Top 3
             </CardTitle>
-            <CardDescription>Os maiores saldos da comunidade</CardDescription>
+            <CardDescription>{config.description}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-3 gap-4">
@@ -143,7 +306,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                           : "border-amber-600/30 bg-amber-600/5 order-3"
                     }`}
                   >
-                    {/* Posição */}
                     <div
                       className={`mb-3 flex h-12 w-12 items-center justify-center rounded-full ${
                         is1st
@@ -156,7 +318,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                       {getRankIcon(entry.rank_position)}
                     </div>
 
-                    {/* Avatar */}
                     <Avatar
                       className={`mb-3 ${is1st ? "h-20 w-20" : "h-16 w-16"}`}
                     >
@@ -169,7 +330,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                       </AvatarFallback>
                     </Avatar>
 
-                    {/* Nome */}
                     <p className="text-center text-sm font-semibold leading-tight">
                       {entry.display_name || entry.username}
                     </p>
@@ -177,11 +337,12 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                       @{entry.username}
                     </p>
 
-                    {/* Saldo */}
-                    <div className="mt-3 flex items-center gap-1 font-bold text-primary">
-                      <Coins className="h-3.5 w-3.5" />
+                    <div
+                      className={`mt-3 flex items-center gap-1 font-bold ${config.color}`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
                       <span className="text-sm">
-                        {entry.balance.toLocaleString()}
+                        {entry.metric_value.toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -208,6 +369,7 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
           <CardContent className="space-y-2">
             {rest.map((entry) => {
               const isCurrentUser = entry.id === currentUserId;
+              const isNegative = entry.metric_value < 0;
 
               return (
                 <div
@@ -219,7 +381,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    {/* Posição */}
                     <Badge
                       variant="outline"
                       className={`min-w-12 justify-center font-mono ${getRankBadgeColor(
@@ -229,7 +390,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                       #{entry.rank_position}
                     </Badge>
 
-                    {/* Avatar */}
                     <Avatar className="h-9 w-9">
                       <AvatarImage
                         src={entry.avatar_url || undefined}
@@ -240,7 +400,6 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                       </AvatarFallback>
                     </Avatar>
 
-                    {/* Nome */}
                     <div>
                       <p className="text-sm font-medium leading-tight">
                         {entry.display_name || entry.username}
@@ -259,10 +418,13 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
                     </div>
                   </div>
 
-                  {/* Saldo */}
-                  <div className="flex items-center gap-1 font-semibold">
-                    <Coins className="h-4 w-4 text-primary" />
-                    <span>{entry.balance.toLocaleString()}</span>
+                  <div
+                    className={`flex items-center gap-1 font-semibold ${
+                      isNegative ? "text-destructive" : config.color
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span>{entry.metric_value.toLocaleString()}</span>
                   </div>
                 </div>
               );
@@ -279,10 +441,11 @@ export function RankingList({ leaderboard, currentUserId }: RankingListProps) {
               <UserIcon className="h-7 w-7 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold">
-              Ainda não há ninguém no ranking
+              Ainda não há dados para este ranking
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Assim que os usuários começarem a apostar, o ranking será formado.
+              Assim que os usuários começarem a apostar, os dados aparecerão
+              aqui.
             </p>
           </CardContent>
         </Card>
