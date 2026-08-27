@@ -55,7 +55,7 @@ interface Prediction {
   creator_id: string;
   creator: Profile;
   prediction_options: PredictionOption[];
-  prediction_winning_options: { option_id: string }[]; // <-- ADICIONADO
+  prediction_winning_options: { option_id: string }[];
   bets: Bet[];
 }
 
@@ -134,7 +134,7 @@ export function PredictionCard({
     closes_at,
     creator,
     prediction_options,
-    prediction_winning_options, // <-- ADICIONADO
+    prediction_winning_options,
     bets,
   } = prediction;
 
@@ -152,12 +152,10 @@ export function PredictionCard({
   const canBet =
     status === "OPEN" && !hasBet && !isCreator && currentUserId !== null;
 
-  // Set de IDs vencedores para busca rápida
   const winningOptionIds = new Set(
     (prediction_winning_options || []).map((w) => w.option_id),
   );
 
-  // Agrupa apostas e calcula a porcentagem do pool
   const betsByOption = prediction_options.map((opt, index) => {
     const optionBets = bets.filter((b) => b.option_id === opt.id);
     const amount = optionBets.reduce((sum, b) => sum + b.amount, 0);
@@ -237,7 +235,12 @@ export function PredictionCard({
             {hasBet && (
               <Badge
                 variant="outline"
-                className={`gap-1 ${status === "RESOLVED" && winningOptionIds.has(userBet.option_id) ? "text-green-600 border-green-500" : "text-blue-600"}`}
+                className={`gap-1 ${
+                  status === "RESOLVED" &&
+                  winningOptionIds.has(userBet.option_id)
+                    ? "text-green-600 border-green-500"
+                    : "text-blue-600"
+                }`}
               >
                 {status === "RESOLVED" &&
                 winningOptionIds.has(userBet.option_id) ? (
@@ -267,7 +270,7 @@ export function PredictionCard({
         </p>
       )}
 
-      {/* Opções com Porcentagem e Seleção Visual */}
+      {/* Opções */}
       <div className="mb-4 space-y-2">
         {betsByOption.map(
           ({
@@ -287,7 +290,7 @@ export function PredictionCard({
                 onClick={() => canBet && setSelectedOptionId(option.id)}
                 className={`relative overflow-hidden rounded-md border px-3 py-2.5 text-sm transition-all ${
                   status === "RESOLVED" && isWinner
-                    ? "border-green-500 bg-green-50 dark:bg-green-950/30 cursor-default" // DESTAQUE DO VENCEDOR
+                    ? "border-green-500 bg-green-50 dark:bg-green-950/30 cursor-default"
                     : hasBet
                       ? "bg-muted/30 border-transparent cursor-default"
                       : canBet && isSelected
@@ -297,7 +300,6 @@ export function PredictionCard({
                           : "bg-muted/20 border-transparent cursor-default"
                 }`}
               >
-                {/* Barra de progresso de porcentagem no fundo */}
                 {totalAmount > 0 && (
                   <div
                     className={`absolute inset-y-0 left-0 transition-all duration-500 ${
@@ -315,7 +317,6 @@ export function PredictionCard({
 
                 <div className="relative flex items-center justify-between gap-2">
                   <div className="flex flex-1 items-center gap-2">
-                    {/* Ícone de Check se for vencedor ou selecionado, senão mostra a letra */}
                     {status === "RESOLVED" && isWinner ? (
                       <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
                     ) : canBet && isSelected ? (
@@ -331,7 +332,6 @@ export function PredictionCard({
 
                     <span className="font-medium truncate">{option.label}</span>
 
-                    {/* Badge de Vencedora */}
                     {status === "RESOLVED" && isWinner && (
                       <Badge
                         variant="outline"
@@ -363,11 +363,11 @@ export function PredictionCard({
         )}
       </div>
 
-      {/* Área de Aposta Rápida ou Footer Normal */}
-      {canBet ? (
+      {/* Formulário de Aposta Rápida (Só aparece se puder apostar) */}
+      {canBet && (
         <form
           onSubmit={handlePlaceBet}
-          className="mt-4 space-y-3 border-t pt-4"
+          className="mb-4 space-y-3 border-t pt-4"
           onClick={(e) => e.stopPropagation()}
         >
           {betError && (
@@ -445,51 +445,51 @@ export function PredictionCard({
             Saldo disponível: {userBalance.toLocaleString()} Muli
           </p>
         </form>
-      ) : (
-        /* Footer Normal (quando não pode apostar) */
-        <div className="mt-4 flex items-center justify-between border-t pt-4">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-6 w-6">
-              <AvatarImage
-                src={creator.avatar_url || undefined}
-                alt={creator.username}
-              />
-              <AvatarFallback>
-                {creator.username.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-muted-foreground">
-              por{" "}
-              <Link
-                href={`/profile/${creator.username}`}
-                className="font-medium text-foreground hover:underline"
-              >
-                {creator.display_name || creator.username}
-              </Link>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3" />
-              {totalBets} {totalBets === 1 ? "aposta" : "apostas"}
-            </span>
-            <span className="flex items-center gap-1">
-              <Coins className="h-3 w-3" />
-              {totalAmount.toLocaleString()} Muli
-            </span>
-            <Link href={`/predictions/${id}`}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 px-2 text-xs gap-1"
-              >
-                Detalhes <ArrowRight className="h-3 w-3" />
-              </Button>
-            </Link>
-          </div>
-        </div>
       )}
+
+      {/* RODAPÉ SEMPRE VISÍVEL: Criador + Estatísticas + Detalhes */}
+      <div className="flex items-center justify-between border-t pt-4">
+        <div className="flex items-center gap-2">
+          <Avatar className="h-6 w-6">
+            <AvatarImage
+              src={creator.avatar_url || undefined}
+              alt={creator.username}
+            />
+            <AvatarFallback>
+              {creator.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground">
+            por{" "}
+            <Link
+              href={`/profile/${creator.username}`}
+              className="font-medium text-foreground hover:underline"
+            >
+              {creator.display_name || creator.username}
+            </Link>
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <Users className="h-3 w-3" />
+            {totalBets} {totalBets === 1 ? "aposta" : "apostas"}
+          </span>
+          <span className="flex items-center gap-1">
+            <Coins className="h-3 w-3" />
+            {totalAmount.toLocaleString()} Muli
+          </span>
+          <Link href={`/predictions/${id}`}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1"
+            >
+              Detalhes <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       {/* Data limite */}
       {status === "OPEN" && (
