@@ -136,12 +136,12 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>Meu perfil</span>
                       </DropdownMenuItem>
-                      <DropdownMenuItem
+                      {/* <DropdownMenuItem
                         onClick={() => router.push("/settings")}
                       >
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Configurações</span>
-                      </DropdownMenuItem>
+                      </DropdownMenuItem> */}
                     </DropdownMenuGroup>
 
                     <DropdownMenuSeparator />
@@ -221,13 +221,13 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
                   >
                     Meu perfil
                   </Link>
-                  <Link
+                  {/* <Link
                     href="/settings"
                     onClick={() => setMobileMenuOpen(false)}
                     className="text-sm font-medium text-muted-foreground hover:text-primary"
                   >
                     Configurações
-                  </Link>
+                  </Link> */}
                   <div className="pt-3 border-t">
                     <Button
                       variant="ghost"
