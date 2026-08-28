@@ -18,15 +18,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import {
-  Menu,
-  X,
-  Coins,
-  LogOut,
-  User as UserIcon,
-  Settings,
-} from "lucide-react";
+import { Menu, X, Coins, LogOut, User as UserIcon } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 interface Profile {
   id: string;
@@ -69,8 +63,15 @@ export function NavbarClient({ user, profile, balance }: NavbarClientProps) {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <Coins className="h-6 w-6 text-primary" />
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo-mulimarket.png"
+              alt="MuliMarket Logo"
+              width={32}
+              height={32}
+              className="h-8 w-auto object-contain"
+              priority
+            />
             <span className="text-xl font-bold">MuliMarket</span>
           </Link>
 
