@@ -2,6 +2,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Trophy,
@@ -30,7 +31,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -52,14 +52,6 @@ interface RankingListProps {
 
 type RankingType = "balance" | "net_worth" | "gains" | "losses";
 type RankingPeriod = "day" | "week" | "month" | "total";
-
-// Mapeamento para exibir o nome bonito no SelectValue
-const periodLabels: Record<RankingPeriod, string> = {
-  day: "Últimas 24 horas",
-  week: "Últimos 7 dias",
-  month: "Últimos 30 dias",
-  total: "Todo o período",
-};
 
 function getRankIcon(position: number) {
   if (position === 1) return <Crown className="h-5 w-5 text-yellow-500" />;
@@ -218,7 +210,6 @@ export function RankingList({
               onValueChange={(v) => updateFilter("period", v || "")}
             >
               <SelectTrigger className="w-full">
-                {/* Mapeamento manual do value para texto */}
                 <span>
                   {initialPeriod === "day" && "Últimas 24 horas"}
                   {initialPeriod === "week" && "Últimos 7 dias"}
@@ -246,19 +237,24 @@ export function RankingList({
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
                 #{currentUserEntry.rank_position}
               </div>
-              <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src={currentUserEntry.avatar_url || undefined}
-                  alt={currentUserEntry.username}
-                />
-                <AvatarFallback>
-                  {currentUserEntry.username.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <Link href={`/profile/${currentUserEntry.username}`}>
+                <Avatar className="h-10 w-10 cursor-pointer hover:opacity-80 transition-opacity">
+                  <AvatarImage
+                    src={currentUserEntry.avatar_url || undefined}
+                    alt={currentUserEntry.username}
+                  />
+                  <AvatarFallback>
+                    {currentUserEntry.username.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
               <div>
-                <p className="font-medium">
+                <Link
+                  href={`/profile/${currentUserEntry.username}`}
+                  className="font-medium hover:underline hover:text-primary transition-colors"
+                >
                   {currentUserEntry.display_name || currentUserEntry.username}
-                </p>
+                </Link>
                 <p className="text-xs text-muted-foreground">
                   @{currentUserEntry.username}
                 </p>
@@ -318,21 +314,30 @@ export function RankingList({
                       {getRankIcon(entry.rank_position)}
                     </div>
 
-                    <Avatar
-                      className={`mb-3 ${is1st ? "h-20 w-20" : "h-16 w-16"}`}
-                    >
-                      <AvatarImage
-                        src={entry.avatar_url || undefined}
-                        alt={entry.username}
-                      />
-                      <AvatarFallback className={is1st ? "text-xl" : "text-lg"}>
-                        {entry.username.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <Link href={`/profile/${entry.username}`}>
+                      <Avatar
+                        className={`mb-3 cursor-pointer hover:opacity-80 transition-opacity ${
+                          is1st ? "h-20 w-20" : "h-16 w-16"
+                        }`}
+                      >
+                        <AvatarImage
+                          src={entry.avatar_url || undefined}
+                          alt={entry.username}
+                        />
+                        <AvatarFallback
+                          className={is1st ? "text-xl" : "text-lg"}
+                        >
+                          {entry.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
 
-                    <p className="text-center text-sm font-semibold leading-tight">
+                    <Link
+                      href={`/profile/${entry.username}`}
+                      className="text-center text-sm font-semibold leading-tight hover:underline hover:text-primary transition-colors"
+                    >
                       {entry.display_name || entry.username}
-                    </p>
+                    </Link>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       @{entry.username}
                     </p>
@@ -390,18 +395,23 @@ export function RankingList({
                       #{entry.rank_position}
                     </Badge>
 
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={entry.avatar_url || undefined}
-                        alt={entry.username}
-                      />
-                      <AvatarFallback>
-                        {entry.username.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+                    <Link href={`/profile/${entry.username}`}>
+                      <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity">
+                        <AvatarImage
+                          src={entry.avatar_url || undefined}
+                          alt={entry.username}
+                        />
+                        <AvatarFallback>
+                          {entry.username.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
 
                     <div>
-                      <p className="text-sm font-medium leading-tight">
+                      <Link
+                        href={`/profile/${entry.username}`}
+                        className="text-sm font-medium leading-tight hover:underline hover:text-primary transition-colors"
+                      >
                         {entry.display_name || entry.username}
                         {isCurrentUser && (
                           <Badge
@@ -411,7 +421,7 @@ export function RankingList({
                             Você
                           </Badge>
                         )}
-                      </p>
+                      </Link>
                       <p className="text-xs text-muted-foreground">
                         @{entry.username}
                       </p>
