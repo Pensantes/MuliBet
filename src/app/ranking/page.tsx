@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RankingList } from "@/components/ranking/RankingList";
 
 export const metadata = {
-  title: "Ranking — MuliBet",
+  title: "Ranking — MuliMarket",
 };
 
 export const dynamic = "force-dynamic";

@@ -156,7 +156,7 @@ export function RankingList({
           <Trophy className="h-7 w-7 text-primary" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-          Ranking MuliBet
+          Ranking MuliMarket
         </h1>
         <p className="mt-2 text-muted-foreground">
           Acompanhe o desempenho dos melhores da comunidade.
